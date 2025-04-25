@@ -3,32 +3,28 @@
 let Service, Characteristic, aesjs, Noble;
 
 module.exports = (api) => {
-  // Pull in HAP types from Homebridge API
-  Service = api.hap.Service;
-  Characteristic = api.hap.Characteristic;
-
+  // Pull HAP types from the Homebridge API
+  Service = api.hap.Service;  
+  Characteristic = api.hap.Characteristic;  
   // BLE and crypto libs
-  Noble = require('@abandonware/noble');
-  aesjs = require('aes-js');
+  Noble = require('@abandonware/noble');  
+  aesjs = require('aes-js');  
 
-  // Register accessory
-  api.registerAccessory('homebridge-sunset-lamp-ble', 'SunsetLamp', SunsetLamp);
+  // Register accessory with the same name as in package.json
+  api.registerAccessory('homebridge-sunset-lamp-ble', 'SunsetLamp', SunsetLamp);  
 };
 
 class SunsetLamp {
   constructor(log, config) {
     this.log = log;
-    this.config = config;
     this.name = config.name || 'Sunset Lamp';
     this.address = (config.ble_address || '').toLowerCase();
     this.peripheral = null;
     this.writeChar = null;
     this.power = false;
-    this.hue = 0;
-    this.saturation = 0;
-    this.brightness = 0;
+    this.hue = 0; this.saturation = 0; this.brightness = 0;
 
-    // Lightbulb service
+    // Lightbulb service & characteristics
     this.lightService = new Service.Lightbulb(this.name);
     this.lightService.getCharacteristic(Characteristic.On)
       .on('set', this.setPower.bind(this))
@@ -43,7 +39,7 @@ class SunsetLamp {
       .on('set', this.setSaturation.bind(this))
       .on('get', this.getSaturation.bind(this));
 
-    // Start listening for BLE state
+    // BLE events
     Noble.on('stateChange', this.onStateChange.bind(this));
     Noble.on('scanStop', this.onScanStop.bind(this));
   }
@@ -70,10 +66,10 @@ class SunsetLamp {
     if (state === 'poweredOn') {
       this.log.debug('BLE poweredOn, starting scan');
       Noble.on('discover', this.onDiscovered.bind(this));
-      Noble.startScanning();
+      Noble.startScanning();  
     } else {
       this.log.debug(`BLE state ${state}, stopping scan`);
-      Noble.stopScanning();
+      Noble.stopScanning();  
     }
   }
 
@@ -88,10 +84,10 @@ class SunsetLamp {
 
   onConnected(err, peripheral) {
     if (err) return this.log.error('Connect failed:', err);
-    this.log.debug('Connected, discovering services and characteristics');
+    this.log.debug('Connected, discovering services/characteristics');
     peripheral.discoverSomeServicesAndCharacteristics(
-      ['ac501212efde1523785fedbeda25'],
-      ['ac521212efde1523785fedbeda25'],
+      ['ac501212efde1523785fedbeda25'],     // service UUID
+      ['ac521212efde1523785fedbeda25'],     // characteristic UUID
       (err, services, characteristics) => {
         if (err) return this.log.error('Discovery failed:', err);
         this.writeChar = characteristics.find(c => c.uuid === 'ac521212efde1523785fedbeda25');
@@ -100,8 +96,7 @@ class SunsetLamp {
     );
     peripheral.on('disconnect', () => {
       this.log.debug('Disconnected, clearing and rescanning');
-      this.peripheral = null;
-      this.writeChar = null;
+      this.peripheral = null; this.writeChar = null;
       Noble.startScanning();
     });
   }
@@ -110,10 +105,10 @@ class SunsetLamp {
     this.log.debug('BLE scan stopped');
   }
 
-  // Write colour/brightness messages
+  // Send encrypted color/brightness packets
   writeToLamp(cb) {
     if (!this.writeChar) {
-      this.log.warn('No characteristic yet, skipping write');
+      this.log.warn('No write characteristic yet, skipping');
       return cb(null);
     }
     if (this.power) {
@@ -135,7 +130,6 @@ class SunsetLamp {
   }
 
   hsv2rgb(h, s, v) {
-    // same helper logic as before...
     h = Math.max(0, Math.min(360, h)); s /= 100; v /= 100;
     if (s === 0) { let c = Math.round(v*255); return {red:c,green:c,blue:c}; }
     h /= 60; let i = Math.floor(h), f = h - i;
