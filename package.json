@@ -1,6 +1,6 @@
 {
   "name": "homebridge-sunset-lamp-ble",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "description": "Homebridge accessory for BLE Sunset Lamp (iStrip+ app)",
   "main": "index.js",
   "scripts": {
@@ -8,23 +8,20 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/rubyroobs/homebridge-sunset-lamp-ble.git"
+    "url": "https://github.com/rubyroobs/homebridge-sunset-lamp-ble.git"
   },
   "keywords": [
     "homebridge-plugin",
+    "homebridge-accessory",
     "ble",
     "sunset",
     "lamp"
   ],
   "author": "Ruby Nealon",
   "license": "ISC",
-  "bugs": {
-    "url": "https://github.com/rubyroobs/homebridge-sunset-lamp-ble/issues"
-  },
-  "homepage": "https://github.com/rubyroobs/homebridge-sunset-lamp-ble#readme",
   "engines": {
-    "node": ">=8.6.0",
-    "homebridge": ">=0.4.6"
+    "node": ">=10.17.0",
+    "homebridge": ">=1.3.0"
   },
   "dependencies": {
     "@abandonware/noble": "^1.9.2-15",
