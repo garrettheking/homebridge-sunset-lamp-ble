@@ -1,0 +1,22 @@
+{
+  "pluginAlias": "SunsetLamp",
+  "pluginType": "accessory",
+  "singular": true,
+  "strictValidation": false,
+  "schema": {
+    "type": "object",
+    "properties": {
+      "name": {
+        "title": "Accessory Name",
+        "type": "string",
+        "required": true,
+        "default": "Sunset Lamp"
+      },
+      "ble_address": {
+        "title": "BLE Device Address",
+        "type": "string",
+        "required": true
+      }
+    }
+  }
+}
